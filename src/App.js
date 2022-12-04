@@ -1,46 +1,56 @@
 import { useState } from "react";
 import ClassCounter from "./components/ClassCounter";
 import Counter from "./components/Counter";
+import PostForm from "./components/PostForm";
 import PostList from "./components/PostList";
-import MyButton from "./components/UI/button/MyButton";
-import MyInput from "./components/UI/input/MyInput";
+import MySelect from "./components/UI/select/MySelect";
 import "./styles/App.css";
 
 function App() {
   const [counter] = useState(false);
-  // eslint-disable-next-line no-unused-vars
   const [posts, setPosts] = useState([
-    { id: 1, title: " Javascript", body: "Javascript - язык программирования" },
-    { id: 2, title: " Javascript 2", body: "Javascript - язык программирования 2" },
-    { id: 3, title: " Javascript 3", body: "Javascript - язык программирования 3" },
+    { id: 1, title: "аа", body: "бб" },
+    { id: 2, title: "гг", body: "аа" },
+    { id: 3, title: "вв", body: "яя" },
   ]);
-
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-
-  const addNewPost = (e) => {
-    e.preventDefault();
-    const newPost = {
-      id: Date.now(),
-      title,
-      body,
-    };
-    // posts.push(newPost); либо, как ниже
+  const [selectedSort, setSelectedSort] = useState("");
+  const createPost = (newPost) => {
     setPosts([...posts, newPost]);
+  };
 
-    setTitle("");
-    setBody("");
+  // post получаем из дочернего компонента
+  const removePost = (post) => {
+    setPosts(posts.filter((p) => p.id !== post.id));
+  };
+  const sortPosts = (sort) => {
+    setSelectedSort(sort);
+    // console.log(sort);
+    // Напрямую нельзя мутировать массив, поэтому мы мутируем копию массива
+    setPosts([...posts].sort((a, b) => a[sort].localeCompare(b[sort])));
   };
 
   return (
     <div className="App">
-      {title}
-      <form>
-        <MyInput type="text" placeholder="Название поста" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <MyInput type="text" placeholder="Описание поста" value={body} onChange={(e) => setBody(e.target.value)} />
-        <MyButton onClick={addNewPost}>Создать пост</MyButton>
-      </form>
-      <PostList posts={posts} title="Список постов 1" />
+      <PostForm create={createPost} />
+
+      <hr style={{ margin: "15px 0" }} />
+      <div>
+        <MySelect
+          value={selectedSort}
+          onChange={sortPosts}
+          defaultValue="Сортировка"
+          options={[
+            { value: "title", name: "По названию" },
+            { value: "body", name: "По описанию" },
+          ]}
+        />
+      </div>
+
+      {posts.length !== 0 ? (
+        <PostList remove={removePost} posts={posts} title="Список постов 1" />
+      ) : (
+        <h1 className="text__center">Посты не найдены</h1>
+      )}
 
       {counter && <Counter />}
       {counter && <ClassCounter />}
