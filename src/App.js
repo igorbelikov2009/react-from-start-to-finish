@@ -4,6 +4,8 @@ import Counter from "./components/Counter";
 import PostFilter from "./components/PostFilter";
 import PostForm from "./components/PostForm";
 import PostList from "./components/PostList";
+import MyButton from "./components/UI/button/MyButton";
+import MyModal from "./components/UI/myModal/MyModal";
 import "./styles/App.css";
 
 function App() {
@@ -14,8 +16,13 @@ function App() {
     { id: 3, title: "вв", body: "яя" },
   ]);
 
+  // ===========================================================================================
+  // Поиск и сортировка
   const [filter, setFilter] = useState({ sort: "", query: "" });
-
+  const options = [
+    { value: "title", name: "По названию" },
+    { value: "body", name: "По описанию" },
+  ];
   // Отсортированный массив: sortedPosts
   const sortedPosts = useMemo(() => {
     console.log("Отработала функция getSortedPosts");
@@ -29,29 +36,43 @@ function App() {
   const sortedAndSearchedPosts = useMemo(() => {
     return sortedPosts.filter((post) => post.title.toLocaleLowerCase().includes(filter.query));
   }, [filter.query, sortedPosts]);
-
+  // Поиск и сортировка
+  // ===========================================================================================
+  // ===========================================================================================
+  // Создание, удаление поста
   const createPost = (newPost) => {
     setPosts([...posts, newPost]);
+    setModal(false);
   };
 
   // post получаем из дочернего компонента PostItem
   const removePost = (post) => {
     setPosts(posts.filter((p) => p.id !== post.id));
   };
+  // Создание, удаление поста
+  // ===========================================================================================
+  // ===========================================================================================
+  // Модальное окно
+  const [modal, setModal] = useState(false);
+
+  // Модальное окно
+  // ===========================================================================================
 
   return (
     <div className="App">
-      <PostForm create={createPost} />
+      <div className="mt-2">
+        <MyButton onClick={() => setModal(true)}>Создать пользователя</MyButton>
+      </div>
+
+      <MyModal visible={modal} setVisible={setModal}>
+        <PostForm create={createPost} />
+      </MyModal>
 
       <hr style={{ margin: "15px 0" }} />
 
-      <PostFilter filter={filter} setFilter={setFilter} />
+      <PostFilter filter={filter} setFilter={setFilter} options={options} />
 
-      {sortedAndSearchedPosts.length !== 0 ? (
-        <PostList remove={removePost} posts={sortedAndSearchedPosts} title="Список постов 1" />
-      ) : (
-        <h1 className="text__center">Посты не найдены</h1>
-      )}
+      <PostList remove={removePost} posts={sortedAndSearchedPosts} title="Список постов 1" />
 
       {counter && <Counter />}
       {counter && <ClassCounter />}
